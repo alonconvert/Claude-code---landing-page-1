@@ -3,120 +3,196 @@
 import { motion } from "framer-motion";
 import { SmoothScrollLink } from "@/components/smooth-scroll-link";
 
+const marqueeItems = [
+  "דפי נחיתה", "×2 המרות", "989₪", "יוצא גוגל",
+  "עלות ליד נמוכה", "עיצוב פרימיום", "תוצאות מוכחות",
+  "דפי נחיתה", "×2 המרות", "989₪", "יוצא גוגל",
+  "עלות ליד נמוכה", "עיצוב פרימיום", "תוצאות מוכחות",
+];
+
 export function Hero() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background gradients */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-primary/5" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
+    <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
 
-      {/* Floating orbs — more intense */}
-      <motion.div
-        className="absolute top-1/4 start-1/4 w-80 h-80 bg-primary/20 rounded-full blur-3xl"
-        animate={{
-          scale: [1, 1.35, 1],
-          opacity: [0.4, 0.7, 0.4],
-          x: [0, 20, 0],
-          y: [0, -20, 0],
+      {/* Grid background */}
+      <div
+        className="absolute inset-0 opacity-100"
+        style={{
+          backgroundImage: `
+            linear-gradient(to right, oklch(0.64 0.29 294 / 0.06) 1px, transparent 1px),
+            linear-gradient(to bottom, oklch(0.64 0.29 294 / 0.06) 1px, transparent 1px)
+          `,
+          backgroundSize: "80px 80px",
         }}
-        transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
       />
-      <motion.div
-        className="absolute bottom-1/4 end-1/4 w-96 h-96 bg-primary/15 rounded-full blur-3xl"
-        animate={{
-          scale: [1.2, 1, 1.2],
-          opacity: [0.3, 0.6, 0.3],
-          x: [0, -25, 0],
-          y: [0, 25, 0],
+
+      {/* Center radial fade over grid */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 80% 70% at 50% 50%, transparent 30%, var(--background) 100%)",
         }}
+      />
+
+      {/* Main violet glow */}
+      <motion.div
+        className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none"
+        style={{
+          width: 700,
+          height: 700,
+          background:
+            "radial-gradient(circle, oklch(0.64 0.29 294 / 0.13) 0%, transparent 70%)",
+        }}
+        animate={{ scale: [1, 1.15, 1], opacity: [0.8, 1, 0.8] }}
         transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
       />
+
+      {/* Secondary glow — offset */}
       <motion.div
-        className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary/8 rounded-full blur-3xl"
-        animate={{
-          scale: [1, 1.5, 1],
-          opacity: [0.2, 0.5, 0.2],
+        className="absolute pointer-events-none"
+        style={{
+          top: "30%",
+          insetInlineStart: "20%",
+          width: 350,
+          height: 350,
+          background:
+            "radial-gradient(circle, oklch(0.64 0.29 294 / 0.08) 0%, transparent 70%)",
         }}
+        animate={{ scale: [1.1, 1, 1.1], opacity: [0.5, 0.9, 0.5] }}
         transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
       />
 
-      <div className="relative z-10 container mx-auto px-6 text-center">
+      {/* Main content */}
+      <div className="relative z-10 container mx-auto px-6 pt-20 pb-32 text-center">
+
+        {/* Badge */}
         <motion.div
-          initial={{ opacity: 0, y: 40, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.9, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="flex justify-center mb-14"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/10 text-primary text-sm mb-8 backdrop-blur-sm">
-            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            יוצא גוגל | מומחה שיווק דיגיטלי
+          <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+            <span
+              className="text-xs text-primary/80 font-semibold"
+              style={{ letterSpacing: "0.12em" }}
+            >
+              יוצא גוגל · מומחה שיווק דיגיטלי
+            </span>
           </div>
         </motion.div>
 
-        <motion.h1
-          className="text-4xl md:text-6xl lg:text-7xl font-black leading-tight mb-6"
-          initial={{ opacity: 0, y: 50, scale: 0.93 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 1, delay: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
-        >
-          הקמפיין שלך לא ממיר?
-          <br />
-          <motion.span
-            className="text-primary inline-block"
-            animate={{
-              textShadow: [
-                "0 0 20px oklch(0.65 0.25 300 / 0.3)",
-                "0 0 40px oklch(0.65 0.25 300 / 0.6)",
-                "0 0 20px oklch(0.65 0.25 300 / 0.3)",
-              ],
+        {/* Headline — poster style */}
+        <div className="space-y-2">
+          <motion.h1
+            className="font-black leading-[0.88] tracking-tight text-foreground"
+            style={{ fontSize: "clamp(3rem, 11vw, 8.5rem)" }}
+            initial={{ opacity: 0, y: 60 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          >
+            הדף נחיתה שלך
+          </motion.h1>
+
+          <motion.h1
+            className="font-black leading-[0.88] tracking-tight"
+            style={{
+              fontSize: "clamp(3rem, 11vw, 8.5rem)",
+              color: "oklch(0.97 0.004 292 / 0.3)",
             }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            initial={{ opacity: 0, y: 60 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          >
+            לא ממיר?
+          </motion.h1>
+
+          {/* Decorative divider */}
+          <motion.div
+            className="my-7 mx-auto h-px max-w-xs"
+            style={{
+              background:
+                "linear-gradient(to right, transparent, oklch(0.64 0.29 294 / 0.6), transparent)",
+            }}
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 1.2, delay: 0.35 }}
+          />
+
+          <motion.h1
+            className="font-black leading-[0.88] tracking-tight text-primary"
+            style={{ fontSize: "clamp(3rem, 11vw, 8.5rem)" }}
+            initial={{ opacity: 0, y: 60 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
           >
             בוא נשנה את זה.
-          </motion.span>
-        </motion.h1>
+          </motion.h1>
+        </div>
 
+        {/* Sub-copy */}
         <motion.p
-          className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8"
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="text-muted-foreground text-lg md:text-xl max-w-xl mx-auto mt-10 leading-relaxed"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 0.55 }}
         >
-          דפי נחיתה מעוצבים ומוכווני המרות שמכפילים את התוצאות של הקמפיינים
-          הממומנים שלך — ומורידים את עלות הליד בחצי.
+          דפי נחיתה מעוצבים ומוכווני המרות שמכפילים תוצאות קמפיינים ממומנים —
+          ומורידים עלות הליד בחצי.
         </motion.p>
 
+        {/* Price + CTA */}
         <motion.div
-          className="flex flex-col sm:flex-row items-center justify-center gap-4"
-          initial={{ opacity: 0, y: 40 }}
+          className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-12"
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
+          transition={{ duration: 0.9, delay: 0.7 }}
         >
           <motion.div
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.97 }}
-            transition={{ type: "spring", stiffness: 350, damping: 20 }}
+            transition={{ type: "spring", stiffness: 400, damping: 22 }}
           >
             <SmoothScrollLink
               targetId="lead-form"
-              className="text-lg px-8 py-6 rounded-xl font-bold shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-shadow"
+              className="text-base px-8 py-5 rounded-xl font-bold shadow-xl shadow-primary/25 hover:shadow-primary/45 transition-shadow"
             >
               רוצה דף שממיר ←
             </SmoothScrollLink>
           </motion.div>
 
-          <motion.div
-            className="flex items-center gap-2 text-muted-foreground"
-            animate={{ opacity: [0.7, 1, 0.7] }}
-            transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <span className="text-3xl font-black text-foreground">989₪</span>
-            <span className="text-sm">בלבד</span>
-          </motion.div>
+          {/* Price badge */}
+          <div className="flex items-baseline gap-1.5">
+            <span
+              className="text-5xl font-black"
+              style={{ color: "var(--gold)" }}
+            >
+              989
+            </span>
+            <span
+              className="text-2xl font-bold"
+              style={{ color: "var(--gold)" }}
+            >
+              ₪
+            </span>
+            <span className="text-sm text-muted-foreground ms-1">בלבד</span>
+          </div>
         </motion.div>
       </div>
 
-      {/* Bottom fade */}
-      <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-background to-transparent" />
+      {/* Bottom marquee strip */}
+      <div className="absolute bottom-0 inset-x-0 border-t border-border/40 overflow-hidden h-10 flex items-center bg-background/50 backdrop-blur-sm">
+        <div className="flex whitespace-nowrap animate-marquee">
+          {marqueeItems.map((item, i) => (
+            <span key={i} className="inline-flex items-center gap-4 px-4 text-xs text-muted-foreground/50 font-medium" style={{ letterSpacing: "0.08em" }}>
+              {item}
+              <span className="text-primary/30">·</span>
+            </span>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }

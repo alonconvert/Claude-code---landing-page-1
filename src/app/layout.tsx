@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { assistant } from "@/lib/fonts";
+import { Header } from "@/components/header";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -23,6 +24,7 @@ export default function RootLayout({
   return (
     <html lang="he" dir="rtl">
       <body className={`${assistant.variable} antialiased`}>
+        <Header />
         {children}
       </body>
     </html>

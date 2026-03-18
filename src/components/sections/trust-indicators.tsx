@@ -1,25 +1,19 @@
 "use client";
 
-import { useRef } from "react";
-import {
-  motion,
-  useMotionValue,
-  useTransform,
-  animate,
-  useInView,
-} from "framer-motion";
-import { useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { useRef, useEffect } from "react";
+import { motion, useMotionValue, useTransform, animate, useInView } from "framer-motion";
 import { AnimatedSection } from "@/components/animated-section";
 
 function AnimatedNumber({
   target,
   prefix = "",
   suffix = "",
+  gold = false,
 }: {
   target: number;
   prefix?: string;
   suffix?: string;
+  gold?: boolean;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
   const motionValue = useMotionValue(0);
@@ -28,7 +22,7 @@ function AnimatedNumber({
 
   useEffect(() => {
     if (isInView) {
-      animate(motionValue, target, { duration: 1.5, ease: "easeOut" });
+      animate(motionValue, target, { duration: 1.8, ease: "easeOut" });
     }
   }, [isInView, motionValue, target]);
 
@@ -42,7 +36,14 @@ function AnimatedNumber({
   }, [rounded, prefix, suffix]);
 
   return (
-    <span ref={ref} className="text-5xl md:text-6xl font-black text-primary">
+    <span
+      ref={ref}
+      className="block font-black leading-none tracking-tighter"
+      style={{
+        fontSize: "clamp(3.5rem, 8vw, 7rem)",
+        color: gold ? "var(--gold)" : "var(--foreground)",
+      }}
+    >
       {prefix}0{suffix}
     </span>
   );
@@ -51,60 +52,86 @@ function AnimatedNumber({
 const stats = [
   {
     target: 2,
-    prefix: "x",
+    prefix: "×",
     suffix: "",
     label: "שיעור המרה",
-    description: "פי 2 מהממוצע בשוק",
+    sub: "לעומת הממוצע בשוק",
+    gold: false,
   },
   {
     target: 50,
     prefix: "",
     suffix: "%",
     label: "חיסכון בעלות ליד",
-    description: "חצי מחיר לכל ליד שנכנס",
+    sub: "בכל ליד לעומת הממוצע",
+    gold: false,
   },
   {
     target: 989,
     prefix: "₪",
     suffix: "",
-    label: "מחיר דף נחיתה",
-    description: "מחיר שקוף, ללא עלויות נסתרות",
+    label: "מחיר שקוף",
+    sub: "ללא עלויות נסתרות",
+    gold: true,
   },
 ];
 
 export function TrustIndicators() {
   return (
-    <section className="py-24 md:py-32">
+    <section className="py-0">
+      {/* Top border line */}
+      <div className="border-t border-border/40" />
+
       <div className="container mx-auto px-6">
+        {/* Section label */}
         <AnimatedSection>
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
-            למה הלקוחות שלי <span className="text-primary">מצליחים?</span>
-          </h2>
-          <p className="text-muted-foreground text-center mb-16 max-w-xl mx-auto">
-            שילוב של ניסיון שיווקי מגוגל עם עיצוב ברמה הגבוהה ביותר
-          </p>
+          <div className="pt-20 pb-12 flex items-center gap-4">
+            <span className="w-6 h-px bg-primary" />
+            <span className="text-xs text-primary font-semibold" style={{ letterSpacing: "0.14em" }}>
+              תוצאות מוכחות
+            </span>
+          </div>
         </AnimatedSection>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Stats grid — editorial horizontal */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-0 pb-20">
           {stats.map((stat, index) => (
-            <AnimatedSection key={stat.label} delay={index * 0.15}>
-              <Card className="border-border/50 bg-card/50 backdrop-blur-sm hover:border-primary/30 transition-colors duration-300">
-                <CardContent className="pt-8 pb-8 text-center space-y-3">
-                  <AnimatedNumber
-                    target={stat.target}
-                    prefix={stat.prefix}
-                    suffix={stat.suffix}
-                  />
-                  <h3 className="text-xl font-bold">{stat.label}</h3>
-                  <p className="text-muted-foreground text-sm">
-                    {stat.description}
-                  </p>
-                </CardContent>
-              </Card>
+            <AnimatedSection key={stat.label} delay={index * 0.12}>
+              <div
+                className={`py-10 ${
+                  index < stats.length - 1
+                    ? "md:border-e border-border/30 md:pe-12 md:me-0"
+                    : ""
+                } ${index > 0 ? "md:ps-12" : ""}`}
+              >
+                {/* Number */}
+                <AnimatedNumber
+                  target={stat.target}
+                  prefix={stat.prefix}
+                  suffix={stat.suffix}
+                  gold={stat.gold}
+                />
+
+                {/* Thin line below number */}
+                <motion.div
+                  className="my-5 h-px w-12"
+                  style={{ background: stat.gold ? "var(--gold)" : "var(--primary)" }}
+                  initial={{ scaleX: 0, originX: 1 }}
+                  whileInView={{ scaleX: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8, delay: 0.2 + index * 0.12 }}
+                />
+
+                {/* Label */}
+                <p className="text-foreground font-bold text-lg">{stat.label}</p>
+                <p className="text-muted-foreground text-sm mt-1">{stat.sub}</p>
+              </div>
             </AnimatedSection>
           ))}
         </div>
       </div>
+
+      <div className="border-b border-border/40" />
     </section>
   );
 }
