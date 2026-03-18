@@ -1,7 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useEffect } from "react";
+import { motion, useMotionValue, useSpring } from "framer-motion";
 import { SmoothScrollLink } from "@/components/smooth-scroll-link";
+import { MagneticButton } from "@/components/magnetic-button";
+import { SplitText } from "@/components/split-text";
 
 const marqueeItems = [
   "דפי נחיתה", "×2 המרות", "989₪", "יוצא גוגל",
@@ -11,6 +14,22 @@ const marqueeItems = [
 ];
 
 export function Hero() {
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const springX = useSpring(mouseX, { stiffness: 40, damping: 20 });
+  const springY = useSpring(mouseY, { stiffness: 40, damping: 20 });
+
+  useEffect(() => {
+    const handleMove = (e: MouseEvent) => {
+      const cx = window.innerWidth / 2;
+      const cy = window.innerHeight / 2;
+      mouseX.set((e.clientX - cx) * 0.03);
+      mouseY.set((e.clientY - cy) * 0.03);
+    };
+    window.addEventListener("mousemove", handleMove);
+    return () => window.removeEventListener("mousemove", handleMove);
+  }, [mouseX, mouseY]);
+
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
 
@@ -35,20 +54,21 @@ export function Hero() {
         }}
       />
 
-      {/* Main violet glow */}
+      {/* Main violet glow — parallax */}
       <motion.div
         className="absolute top-1/2 start-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none"
         style={{
           width: 700,
           height: 700,
-          background:
-            "radial-gradient(circle, oklch(0.64 0.29 294 / 0.13) 0%, transparent 70%)",
+          background: "radial-gradient(circle, oklch(0.64 0.29 294 / 0.13) 0%, transparent 70%)",
+          x: springX,
+          y: springY,
         }}
         animate={{ scale: [1, 1.15, 1], opacity: [0.8, 1, 0.8] }}
         transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
       />
 
-      {/* Secondary glow — offset */}
+      {/* Secondary glow — offset + parallax */}
       <motion.div
         className="absolute pointer-events-none"
         style={{
@@ -56,8 +76,9 @@ export function Hero() {
           insetInlineStart: "20%",
           width: 350,
           height: 350,
-          background:
-            "radial-gradient(circle, oklch(0.64 0.29 294 / 0.08) 0%, transparent 70%)",
+          background: "radial-gradient(circle, oklch(0.64 0.29 294 / 0.08) 0%, transparent 70%)",
+          x: useSpring(useMotionValue(0), { stiffness: 25, damping: 15 }),
+          y: useSpring(useMotionValue(0), { stiffness: 25, damping: 15 }),
         }}
         animate={{ scale: [1.1, 1, 1.1], opacity: [0.5, 0.9, 0.5] }}
         transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
@@ -150,18 +171,14 @@ export function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.7 }}
         >
-          <motion.div
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.97 }}
-            transition={{ type: "spring", stiffness: 400, damping: 22 }}
-          >
+          <MagneticButton>
             <SmoothScrollLink
               targetId="lead-form"
               className="text-base px-8 py-5 rounded-xl font-bold shadow-xl shadow-primary/25 hover:shadow-primary/45 transition-shadow"
             >
               רוצה דף שממיר ←
             </SmoothScrollLink>
-          </motion.div>
+          </MagneticButton>
 
           {/* Price badge */}
           <div className="flex items-baseline gap-1.5">

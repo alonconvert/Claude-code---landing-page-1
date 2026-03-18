@@ -4,11 +4,37 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
+import confetti from "canvas-confetti";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AnimatedSection } from "@/components/animated-section";
 import { leadFormSchema, type LeadFormValues } from "@/lib/validations";
 import { submitLead } from "@/app/actions/submit-lead";
+
+function fireConfetti() {
+  const colors = ["#7c3aed", "#a855f7", "#d4af37", "#c084fc", "#ffffff"];
+  confetti({
+    particleCount: 120,
+    spread: 80,
+    origin: { y: 0.6 },
+    colors,
+    scalar: 1.2,
+  });
+  setTimeout(() => {
+    confetti({
+      particleCount: 60,
+      spread: 60,
+      origin: { y: 0.55, x: 0.3 },
+      colors,
+    });
+    confetti({
+      particleCount: 60,
+      spread: 60,
+      origin: { y: 0.55, x: 0.7 },
+      colors,
+    });
+  }, 300);
+}
 
 export function LeadForm() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -30,6 +56,7 @@ export function LeadForm() {
     if (result.success) {
       setStatus("success");
       reset();
+      fireConfetti();
     } else {
       setStatus("error");
       setErrorMessage(result.error);

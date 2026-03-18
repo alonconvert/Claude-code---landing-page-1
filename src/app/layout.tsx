@@ -1,18 +1,27 @@
 import type { Metadata } from "next";
 import { assistant } from "@/lib/fonts";
 import { Header } from "@/components/header";
+import { Analytics } from "@/components/analytics";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "דפי נחיתה שממירים | 989 ש״ח בלבד",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  title: "דפי נחיתה שממירים | Coverty AI · 989₪",
   description:
     "דפי נחיתה מעוצבים ומוכווני המרות לקמפיינים ממומנים. פי 2 המרות, חצי מחיר לליד. על ידי איש שיווק יוצא גוגל.",
   openGraph: {
-    title: "דפי נחיתה שממירים | 989 ש״ח בלבד",
+    title: "דפי נחיתה שממירים | Coverty AI · 989₪",
     description:
-      "דפי נחיתה מעוצבים ומוכווני המרות לקמפיינים ממומנים. פי 2 המרות, חצי מחיר לליד.",
+      "פי 2 המרות · חצי מחיר לליד · 989₪ בלבד",
     locale: "he_IL",
     type: "website",
+    images: [{ url: "/api/og", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "דפי נחיתה שממירים | Coverty AI",
+    description: "פי 2 המרות · חצי מחיר לליד · 989₪ בלבד",
+    images: ["/api/og"],
   },
 };
 
@@ -24,6 +33,7 @@ export default function RootLayout({
   return (
     <html lang="he" dir="rtl">
       <body className={`${assistant.variable} antialiased`}>
+        <Analytics />
         <Header />
         {children}
       </body>
