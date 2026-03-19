@@ -1,97 +1,128 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion, useMotionValue, useSpring } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 
 export function CustomCursor() {
-  const [isVisible, setIsVisible] = useState(false);
-  const [isHovering, setIsHovering] = useState(false);
-  const [isClicking, setIsClicking] = useState(false);
-
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-
-  const springConfig = { damping: 28, stiffness: 280 };
-  const dotX = useSpring(mouseX, { damping: 40, stiffness: 500 });
-  const dotY = useSpring(mouseY, { damping: 40, stiffness: 500 });
-  const ringX = useSpring(mouseX, springConfig);
-  const ringY = useSpring(mouseY, springConfig);
+  const dotRef = useRef<HTMLDivElement>(null);
+  const ringRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+  const pos = useRef({ x: -100, y: -100 });
+  const dotPos = useRef({ x: -100, y: -100 });
+  const ringPos = useRef({ x: -100, y: -100 });
+  const hovering = useRef(false);
+  const clicking = useRef(false);
+  const raf = useRef<number>(0);
 
   useEffect(() => {
-    // Only on non-touch devices
+    // Skip on touch devices
     if (window.matchMedia("(pointer: coarse)").matches) return;
+    setMounted(true);
 
-    const move = (e: MouseEvent) => {
-      mouseX.set(e.clientX);
-      mouseY.set(e.clientY);
-      setIsVisible(true);
-    };
+    // Inject style to hide native cursor everywhere
+    const style = document.createElement("style");
+    style.id = "hide-cursor";
+    style.textContent = "*, *::before, *::after { cursor: none !important; }";
+    document.head.appendChild(style);
 
-    const enter = () => setIsVisible(true);
-    const leave = () => setIsVisible(false);
-    const down = () => setIsClicking(true);
-    const up = () => setIsClicking(false);
+    const onMove = (e: MouseEvent) => {
+      pos.current = { x: e.clientX, y: e.clientY };
 
-    const checkHover = (e: MouseEvent) => {
       const el = e.target as HTMLElement;
-      const isLink = el.closest("a, button, [role='button'], input, textarea, label");
-      setIsHovering(!!isLink);
+      hovering.current = !!el.closest(
+        "a, button, [role='button'], input, textarea, label, [data-magnetic]"
+      );
     };
 
-    document.addEventListener("mousemove", move);
-    document.addEventListener("mousemove", checkHover);
-    document.addEventListener("mouseenter", enter);
-    document.addEventListener("mouseleave", leave);
-    document.addEventListener("mousedown", down);
-    document.addEventListener("mouseup", up);
+    const onDown = () => { clicking.current = true; };
+    const onUp = () => { clicking.current = false; };
 
-    document.documentElement.style.cursor = "none";
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mousedown", onDown);
+    window.addEventListener("mouseup", onUp);
+
+    // Animation loop — no React re-renders, pure DOM updates
+    const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+
+    const animate = () => {
+      // Dot follows fast
+      dotPos.current.x = lerp(dotPos.current.x, pos.current.x, 0.35);
+      dotPos.current.y = lerp(dotPos.current.y, pos.current.y, 0.35);
+
+      // Ring follows slower
+      ringPos.current.x = lerp(ringPos.current.x, pos.current.x, 0.15);
+      ringPos.current.y = lerp(ringPos.current.y, pos.current.y, 0.15);
+
+      if (dotRef.current) {
+        const size = clicking.current ? 6 : 8;
+        const color = hovering.current ? "var(--gold)" : "oklch(0.64 0.29 294)";
+        dotRef.current.style.transform = `translate(${dotPos.current.x - size / 2}px, ${dotPos.current.y - size / 2}px)`;
+        dotRef.current.style.width = `${size}px`;
+        dotRef.current.style.height = `${size}px`;
+        dotRef.current.style.background = color;
+      }
+
+      if (ringRef.current) {
+        const size = hovering.current ? 48 : clicking.current ? 28 : 36;
+        const borderColor = hovering.current
+          ? "oklch(0.83 0.16 85 / 0.6)"
+          : "oklch(0.64 0.29 294 / 0.5)";
+        const bg = hovering.current ? "oklch(0.83 0.16 85 / 0.06)" : "transparent";
+        ringRef.current.style.transform = `translate(${ringPos.current.x - size / 2}px, ${ringPos.current.y - size / 2}px)`;
+        ringRef.current.style.width = `${size}px`;
+        ringRef.current.style.height = `${size}px`;
+        ringRef.current.style.borderColor = borderColor;
+        ringRef.current.style.background = bg;
+      }
+
+      raf.current = requestAnimationFrame(animate);
+    };
+
+    raf.current = requestAnimationFrame(animate);
 
     return () => {
-      document.removeEventListener("mousemove", move);
-      document.removeEventListener("mousemove", checkHover);
-      document.removeEventListener("mouseenter", enter);
-      document.removeEventListener("mouseleave", leave);
-      document.removeEventListener("mousedown", down);
-      document.removeEventListener("mouseup", up);
-      document.documentElement.style.cursor = "";
+      cancelAnimationFrame(raf.current);
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mousedown", onDown);
+      window.removeEventListener("mouseup", onUp);
+      style.remove();
     };
-  }, [mouseX, mouseY]);
+  }, []);
 
-  if (!isVisible) return null;
+  if (!mounted) return null;
 
   return (
     <>
-      {/* Dot — fast */}
-      <motion.div
-        className="fixed pointer-events-none z-[99999] rounded-full"
+      <div
+        ref={dotRef}
         style={{
-          x: dotX,
-          y: dotY,
-          translateX: "-50%",
-          translateY: "-50%",
-          width: isClicking ? 6 : 8,
-          height: isClicking ? 6 : 8,
-          background: isHovering ? "var(--gold)" : "oklch(0.64 0.29 294)",
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: 8,
+          height: 8,
+          borderRadius: "50%",
+          background: "oklch(0.64 0.29 294)",
+          pointerEvents: "none",
+          zIndex: 99999,
           transition: "width 0.15s, height 0.15s, background 0.2s",
+          willChange: "transform",
         }}
       />
-
-      {/* Ring — slow */}
-      <motion.div
-        className="fixed pointer-events-none z-[99998] rounded-full border"
+      <div
+        ref={ringRef}
         style={{
-          x: ringX,
-          y: ringY,
-          translateX: "-50%",
-          translateY: "-50%",
-          width: isHovering ? 44 : isClicking ? 28 : 36,
-          height: isHovering ? 44 : isClicking ? 28 : 36,
-          borderColor: isHovering
-            ? "oklch(0.83 0.16 85 / 0.6)"
-            : "oklch(0.64 0.29 294 / 0.5)",
-          background: isHovering ? "oklch(0.83 0.16 85 / 0.06)" : "transparent",
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: 36,
+          height: 36,
+          borderRadius: "50%",
+          border: "1px solid oklch(0.64 0.29 294 / 0.5)",
+          background: "transparent",
+          pointerEvents: "none",
+          zIndex: 99998,
           transition: "width 0.2s, height 0.2s, border-color 0.2s, background 0.2s",
+          willChange: "transform",
         }}
       />
     </>
