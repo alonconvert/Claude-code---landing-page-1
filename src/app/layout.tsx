@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { assistant } from "@/lib/fonts";
+import { polin, assistant } from "@/lib/fonts";
 import { Header } from "@/components/header";
 import { Analytics } from "@/components/analytics";
 import "./globals.css";
@@ -32,7 +32,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="he" dir="rtl">
-      <body className={`${assistant.variable} antialiased`}>
+      <body className={`${polin.variable} ${assistant.variable} antialiased`}>
         <Analytics />
         <Header />
         {children}
